@@ -1,7 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var {ObjectID} = require('mongodb');
 
-var {mongoose} = require('./db/mongoose'); //remember {mongoose} uses destructuring
+var {mongoose} = require('./db/mongoose'); //remember {} uses destructuring
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 
@@ -26,13 +27,72 @@ app.post('/todos', (req, res) => {
     });
 });
 
-app.get('/todos', (req, res) => {
+app.get('/todos', (req, res) => { //req = request; res = result
     Todo.find().then((todos) => {
         res.send({todos});
     }, (e) => {
         res.status(400).send(e);
     });
 });
+
+// GET /todos/12341234 - my version
+// app.get('/todos/:id', (req, res) => {
+//     var id = req.params.id;
+
+//     if (mongoose.Types.ObjectId.isValid(id)) {
+//         Todo.findById(id)
+//             .then(
+//                 (todo) => {
+//                     if (todo === null) {
+//                         res.status(404).send();
+//                     } else {
+//                         res.send({todo});
+//                     }
+//                 }, (e) => {
+//                     res.status(404).send(e);
+//                 })
+//             .catch((err) => {
+//                 res.status(404).send(err);
+//             });   
+//     } else {
+//         res.status(400).send();
+//     }
+
+
+//     // Validate id using isValid
+//     // respond with 404 if not valid - send back empty send - a send with no value
+
+//     // findById
+//     //  Success Case
+//     //    if todo - send it back
+//     //    if no todo, call succeeded, but Id not in collection - 404 with empty body
+//     //  Error Case
+//     //    400 - don't show the error because it might contain private information
+
+//     //res.send(req.params);
+// });
+
+// GET /todos/12341234 - Andrew's version
+app.get('/todos/:id', (req, res) => {
+    var id = req.params.id;
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+
+    Todo.findById(id)
+        .then(
+            (todo) => {
+                if (!todo) {
+                    return res.status(404).send();
+                }
+                res.send({todo});
+            })
+        .catch((e) => {
+            res.status(400).send();
+        });   
+});
+
 
 app.listen(3000, () => {
     console.log('Started on port 3000');
