@@ -7,6 +7,7 @@ var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 
 var app = express();
+const port = process.env.PORT || 3000; // from Heroku; if not found use 3000
 
 //now we need the post route (CRUD operations)
 
@@ -94,8 +95,8 @@ app.get('/todos/:id', (req, res) => {
 });
 
 
-app.listen(3000, () => {
-    console.log('Started on port 3000');
+app.listen(port, () => {
+    console.log(`Started up on port ${port}`);
 });
 
 module.exports = {app};
