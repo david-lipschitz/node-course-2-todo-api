@@ -13,7 +13,8 @@ let db = {
     localhost: 'mongodb://localhost:27017/TodoApp',
     mlab: 'mongodb://davidl:#G2KgR.7kDFsKgyJ@ds249092.mlab.com:49092/mpst-mongodb-sandbox-todo-api'
 };
-mongoose.connect(db.localhost || db.mlab, {
+//mongoose.connect(db.localhost || db.mlab, {
+mongoose.connect(db.mlab, {
     useMongoClient: true
 });
 
