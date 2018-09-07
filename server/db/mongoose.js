@@ -22,14 +22,21 @@ let db = {
 
 //mongoose.connect(db.localhost || db.mlab, {
 
-mongoose.connect(
-    db.localhost, {
+mongoose.connect(db.localhost,
+    {
         useMongoClient: true
     }
-    ||    
-    db.mlab, {
-        useMongoClient: true
+).then(
+    () => {},
+    err => 
+    {
+        mongoose.connect(db.mlab,
+            {
+                useMongoClient: true
+            }
+        );
     }
 );
+
 
 module.exports = {mongoose};
