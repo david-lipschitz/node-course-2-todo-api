@@ -163,6 +163,38 @@ app.patch('/todos/:id', (req, res) => {
 
 });
 
+app.get('/users', (req, res) => { //req = request; res = result
+    User.find().then((users) => {
+        res.send({users});
+    }, (e) => {
+        res.status(400).send(e);
+    });
+});
+
+
+// POST /users, like post todos; use pick to fetch the email and password
+//  pass to the constructor function directly
+app.post('/users', (req, res) => {
+    //console.log(req.body);
+    var body = _.pick(req.body, ['email', 'password']);
+    // var user = new User({ //I did it like this, but there is an easier way
+    //     email: body.email,
+    //     password: body.password
+    // });
+    var user = new User(body); //simpler as body will include email and password
+
+    user.save()
+        .then(() => { //we used to have .then((user)), but as user is the same we don't need it
+            return user.generateAuthToken();
+            //res.send(doc); - this was the old line before generateAuthToken and the extra then
+        }).then((token) => { // this then is a second promise
+            res.header('x-auth', token).send(user);
+        })
+        .catch((e) => {
+            res.status(400).send(e);
+        });
+});
+
 app.listen(port, () => {
     console.log(`Started up on port ${port}`);
 });
