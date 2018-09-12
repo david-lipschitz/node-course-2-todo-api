@@ -11,7 +11,9 @@ const todos = [{
     text: 'First test todo'
 }, {
     _id: new ObjectID(),
-    text: 'Second test todo'
+    text: 'Second test todo',
+    completed: true,
+    completedAt: 333 //any number you like
 }];
 
 beforeEach((done) => {
@@ -105,46 +107,96 @@ describe('GET /todos/:id', () => {
     });
 });
 
-describe('DELETE /todos/:id', () => {
-    it('should remove a todo', (done) => {
-        var hexId = todos[1]._id.toHexString(); //get the second item
+// describe('DELETE /todos/:id', () => {
+//     it('should remove a todo', (done) => {
+//         var hexId = todos[1]._id.toHexString(); //get the second item
+
+//         request(app)
+//             .delete(`/todos/${hexId}`)
+//             .expect(200) //assertions / expectations
+//             .expect((res) => {
+//                 expect(res.body.todo._id).toBe(hexId);
+//             })
+//             .end((err, res) => {
+//                 if (err) {
+//                     return done(err); //error can be rendered by Mocha
+//                 }
+
+//                 // query database using findById and make sure it doesn't exist; use toNotExist
+//                 // expect(x).toNotExist();
+
+//                 Todo.findById(hexId).then((todo) => {
+//                     expect(todo).toNotExist;
+//                     done();
+//                 }).catch((e) => done(e));
+
+//             });
+//     });
+
+//     it('should return 404 if todo not found', (done) => {
+//         // make sure you get a 404 back
+//         var hexId = new ObjectID().toHexString;
+//         request(app)
+//             .delete(`/todos/${hexId}`)
+//             .expect(404) //remember that expect is an assertion
+//             .end(done);
+
+//     });
+
+//     it('should return 404 if object id is invalid', (done) => {
+//         request(app)
+//             .delete('/todos/123')
+//             .expect(404)
+//             .end(done);
+//     });
+// });
+
+describe('PATCH /todos/:id', () => {
+    it('should update the todo', (done) => {
+        // grab id of first item
+        var hexId = todos[0]._id.toHexString();
+        var varText = 'Hello David 2';
+        //var completed = true;
+        // update text, set completed true
+        // now assertions: 200
+        // custom assertion: text body is changed, completed is true, completedAt is a number, toBeA
+        // SEE documentation for SuperTest
 
         request(app)
-            .delete(`/todos/${hexId}`)
+            .patch(`/todos/${hexId}`) //inject the hexID
+            //.send({text})
+            //.send({completed})
+            .send({
+                completed: true,
+                text: varText
+            })
             .expect(200) //assertions / expectations
             .expect((res) => {
-                expect(res.body.todo._id).toBe(hexId);
+                expect(res.body.todo.text).toBe(varText); 
+                expect(res.body.todo.completed).toBe(true);
+                expect(typeof res.body.todo.completedAt).toBe('number');
             })
-            .end((err, res) => {
-                if (err) {
-                    return done(err); //error can be rendered by Mocha
-                }
-
-                // query database using findById and make sure it doesn't exist; use toNotExist
-                // expect(x).toNotExist();
-
-                Todo.findById(hexId).then((todo) => {
-                    expect(todo).toNotExist;
-                    done();
-                }).catch((e) => done(e));
-
-            });
-    });
-
-    it('should return 404 if todo not found', (done) => {
-        // make sure you get a 404 back
-        var hexId = new ObjectID().toHexString;
-        request(app)
-            .delete(`/todos/${hexId}`)
-            .expect(404) //remember that expect is an assertion
             .end(done);
-
     });
 
-    it('should return 404 if object id is invalid', (done) => {
+    it('should clear completedAt when todo is not completed', (done) => {
+        // grab id of second todo item
+        var hexId = todos[1]._id.toHexString(); //get the second item
+        var text = 'Hello David 3';
+        var completed = false;
+        // update the text, set completed to false
+        // 200
+        // text is changed, completed is false, completedAt is null, eg use toNotExist
         request(app)
-            .delete('/todos/123')
-            .expect(404)
+            .patch(`/todos/${hexId}`)
+            .send({text})
+            .send({completed})
+            .expect(200) //assertions / expectations
+            .expect((res) => {
+                expect(res.body.todo.text).toBe('Hello David 3');
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toNotExist; //toBe(null);
+            })
             .end(done);
     });
 });
