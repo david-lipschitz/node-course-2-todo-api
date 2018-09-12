@@ -8,9 +8,19 @@ mongoose.Promise = global.Promise;
 //     useMongoClient: true
 // });
 
+var env = process.env.NODE_ENV || 'development';
+
+var localhostDB = '';
+
+if (env === 'development') {
+    localhostDB = 'mongodb://localhost:27017/TodoApp';
+} else {
+    localhostDB = 'mongodb://localhost:27017/TodoAppTest';
+}
+
 // new mLab
 let db = {
-    localhost: 'mongodb://localhost:27017/TodoApp',
+    localhost: localhostDB,
     mlab: 'mongodb://davidl:#G2KgR.7kDFsKgyJ@ds249092.mlab.com:49092/mpst-mongodb-sandbox-todo-api'
 };
 //mongoose.connect(db.localhost || db.mlab, {
