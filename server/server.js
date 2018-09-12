@@ -1,6 +1,7 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var {ObjectID} = require('mongodb');
+const _ = require('lodash'); // note Andrew has v4.15.0; I have 4.17/10
+const express = require('express');
+const bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
 var {mongoose} = require('./db/mongoose'); //remember {} uses destructuring
 var {Todo} = require('./models/todo');
@@ -124,6 +125,40 @@ app.delete('/todos/:id', (req, res) => {
             res.status(400).send(e);
         });   
     
+});
+
+app.patch('/todos/:id', (req, res) => {
+    var id = req.params.id;
+    var body = _.pick(req.body, ['text', 'completed']); //the reason lodash was added; text and completed are what we are expecting
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+
+    //check the completed value and set it or unset it
+    if (_.isBoolean(body.completed) && body.completed) {
+        // true
+        body.completedAt = new Date().getTime();
+    } else {
+        // not a boolean or not true
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    //now update the database
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
+        .then((todo) => {
+            if (!todo) {
+                return res.status(404).send();
+            }
+
+            res.send({todo});
+        })
+        .catch((e) => {
+            res.status(400).send();
+        });
+
+
 });
 
 app.listen(port, () => {
