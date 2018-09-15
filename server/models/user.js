@@ -74,6 +74,29 @@ UserSchema.methods.generateAuthToken = function () {
     });
 };
 
+//.statics turns into a Model Method rather than an Instance method
+UserSchema.statics.findByToken = function (token) {
+    var User = this;
+    var decoded; //set as undefined at the moment
+    
+    //jwt.verify() 
+    try {
+        decoded = jwt.verify(token, 'david123');
+    } catch (e) {
+        // return new Promise((resolve, reject) => {
+        //     reject();
+        // }); - can be replaced with the next line
+        return Promise.reject();
+    }
+
+    //return on the next line allows the called findByToken to be chained and be a promise in teh call from server.js
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
+    });
+};
+
 var User = mongoose.model('User', UserSchema);
 
 module.exports = {User};

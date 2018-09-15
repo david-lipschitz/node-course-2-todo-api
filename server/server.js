@@ -8,6 +8,7 @@ const {ObjectID} = require('mongodb');
 var {mongoose} = require('./db/mongoose'); //remember {} uses destructuring
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 const port = process.env.PORT; /// || 3000; // from Heroku; if not found use 3000 (now see PORT set above)
@@ -194,6 +195,49 @@ app.post('/users', (req, res) => {
             res.status(400).send(e);
         });
 });
+
+// authenticate was then moved to its own file in middleware/authenticate.js
+// //the middleware function that allows us to make our routes private
+// var authenticate = (req, res, next) => {
+//     var token = req.header('x-auth');
+
+//     User.findByToken(token) //See user.js
+//         .then((user) => {
+//             if (!user) {
+//                 return Promise.reject();  // instead of "res.status(401).send();"" so that the catch is called
+//             }
+
+//             //use the modified request object
+//             req.user = user;
+//             req.token = token;
+//             next(); //if we don't call this, then the call to authenticate won't execute
+//         })
+//         .catch((e) => {
+//             res.status(401).send();
+//         });
+// };
+
+//this one is with authenticate
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+// //this one is without authenticate
+// app.get('/users/me', (req, res) => {
+//     var token = req.header('x-auth');
+
+//     User.findByToken(token) //See user.js
+//         .then((user) => {
+//             if (!user) {
+//                 return Promise.reject();  // instead of "res.status(401).send();"" so that the catch is called
+//             }
+
+//             res.send(user);
+//         })
+//         .catch((e) => {
+//             res.status(401).send();
+//         });
+// });
 
 app.listen(port, () => {
     console.log(`Started up on port ${port}`);
