@@ -14,6 +14,10 @@ var Todo = mongoose.model('Todo', {
     completedAt: {
         type: Number, // a regular old Unix Timestamp
         default: null
+    },
+    _creator: { //_ tells the user that this is an object id
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
     }
 });
 

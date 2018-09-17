@@ -17,18 +17,24 @@ const users = [{
 }, {
     _id: userTwoId,
     email: 'jen@example.com',
-    password: 'userTwoPass'
+    password: 'userTwoPass',
+    tokens: [{
+        access: 'auth',
+        token: jwt.sign({_id: userTwoId, access: 'auth'}, 'david123').toString()
+    }]
 }];
 
 //seed data: some dummy todos - moved from server/server.test.js
 const todos = [{
     _id: new ObjectID(),
-    text: 'First test todo'
+    text: 'First test todo',
+    _creator: userOneId
 }, {
     _id: new ObjectID(),
     text: 'Second test todo',
     completed: true,
-    completedAt: 333 //any number you like
+    completedAt: 333, //any number you like
+    _creator: userTwoId
 }];
 
 const populateTodos = (done) => {
