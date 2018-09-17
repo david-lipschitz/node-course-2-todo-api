@@ -31,7 +31,7 @@ Object.keys(envConfig).forEach((key) => {
 // new mLab
 let db = {
     localhost: process.env.MONGODB_URI,
-    mlab: process.env.MLAB
+    mlab: 'mongodb://davidl:#G2KgR.7kDFsKgyJ@ds249092.mlab.com:49092/mpst-mongodb-sandbox-todo-api' //process.env.MLAB
 };
 //mongoose.connect(db.localhost || db.mlab, {
 
