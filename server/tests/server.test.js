@@ -349,3 +349,35 @@ describe('POST /users/login', () => {
             });
     });
 });
+
+//verify that when we send a token it is removed
+
+describe('DELETE /users/me/token', () => {
+    it('should remove auth token on logout', (done) => {
+        // DELETE /users/me/token
+        // Set x-auth equal to token
+        // Assertions
+        // 200
+        // Find user, verify that tokens array has length of zero
+
+        //console.log(users[0].tokens[0].token);
+
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', users[0].tokens[0].token) //set the header
+            .expect(200)
+            .end((err, res) => {
+                if (err) {
+                    return done(err); //error can be rendered by Mocha
+                }
+
+                // query database using findById and make sure it doesn't exist; use toNotExist
+                // expect(x).toNotExist();
+
+                User.findById(users[0]._id).then((user) => {
+                    expect(user.tokens.length).toBe(0);
+                    done();
+                }).catch((e) => done(e));
+            });
+    });
+});
