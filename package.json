@@ -1,7 +1,8 @@
 {
   "name": "todo-api",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "description": "MPST ToDo API - with help from Andrew Mead",
   "main": "index.js",
   "scripts": {
     "start": "node server/server.js",
@@ -9,7 +10,7 @@
     "test-watch": "nodemon --exec 'npm test'"
   },
   "engines": {
-    "node": "8.11.3"
+    "node": "8.12.0"
   },
   "author": "",
   "license": "ISC",
@@ -19,15 +20,15 @@
     "crypto-js": "^3.1.9-1",
     "express": "^4.16.3",
     "jsonwebtoken": "^8.3.0",
-    "lodash": "^4.17.10",
-    "mongodb": "^2.2.5",
-    "mongoose": "^4.13.15",
+    "lodash": "^4.17.11",
+    "mongodb": "^2.2.36",
+    "mongoose": "^4.13.17",
     "validator": "^10.7.1"
   },
   "devDependencies": {
     "expect": "^23.6.0",
     "mocha": "^5.2.0",
-    "nodemon": "^1.18.3",
-    "supertest": "^3.1.0"
+    "nodemon": "^1.18.4",
+    "supertest": "^3.3.0"
   }
 }
