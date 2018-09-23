@@ -3,6 +3,16 @@ var mongoose = require('mongoose');
 //mongoose uses callbacks, but we prefer promises, and we need to tell which library we need
 //so we will use the built in promise library
 mongoose.Promise = global.Promise;
+
+mongoose.connect(process.env.MONGODB_URI,
+    {
+        useMongoClient: true
+    }
+).then(
+    () => {}
+);
+
+//everything below here was used in the development
 // original local db for testing
 // mongoose.connect('mongodb://localhost:27017/TodoApp', {
 //     useMongoClient: true
@@ -18,11 +28,11 @@ mongoose.Promise = global.Promise;
 //     localhostDB = 'mongodb://localhost:27017/TodoAppTest';
 // }
 
-// new mLab
-let db = {
-    localhost: process.env.MONGODB_URI,
-    mlab: process.env.MONGODB_URI
-};
+// new mLab - this was in the development
+// let db = {
+//     localhost: process.env.MONGODB_URI,
+//     mlab: process.env.MONGODB_URI
+// };
 //mongoose.connect(db.localhost || db.mlab, {
 
 //the next three lines work on Heroku and MLab
@@ -32,21 +42,22 @@ let db = {
 
 //mongoose.connect(db.localhost || db.mlab, {
 
-mongoose.connect(db.localhost,
-    {
-        useMongoClient: true
-    }
-).then(
-    () => {},
-    err => 
-    {
-        mongoose.connect(db.mlab,
-            {
-                useMongoClient: true
-            }
-        );
-    }
-);
+//all this was in the development
+// mongoose.connect(db.localhost,
+//     {
+//         useMongoClient: true
+//     }
+// ).then(
+//     () => {},
+//     err => 
+//     {
+//         mongoose.connect(db.mlab,
+//             {
+//                 useMongoClient: true
+//             }
+//         );
+//     }
+// );
 
 
 module.exports = {mongoose};

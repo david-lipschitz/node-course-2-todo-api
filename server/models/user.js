@@ -103,7 +103,7 @@ UserSchema.statics.findByToken = function (token) {
         return Promise.reject();
     }
 
-    //return on the next line allows the called findByToken to be chained and be a promise in teh call from server.js
+    //return on the next line allows the called findByToken to be chained and be a promise in the call from server.js
     return User.findOne({
         '_id': decoded._id,
         'tokens.token': token,

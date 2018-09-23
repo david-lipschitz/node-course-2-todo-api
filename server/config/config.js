@@ -6,7 +6,7 @@ if (env === 'development' || env === 'test') {
     var envConfig = config[env];
 
     //Object.keys(envConfig) //gets all the keys and returns them as an array
-    // and sets up process.env.PORT and process.env.MONGODB_URI
+    // and sets up process.env.PORT and process.env.MONGODB_URI and process.env.JWT_SECRET
     Object.keys(envConfig).forEach((key) => {
         process.env[key] = envConfig[key];
     });

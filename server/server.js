@@ -1,6 +1,6 @@
 require('./config/config');
 
-const _ = require('lodash'); // note Andrew has v4.15.0; I have 4.17/10
+const _ = require('lodash'); // note Andrew has v4.15.0; I have 4.17.10
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
@@ -179,7 +179,6 @@ app.get('/users', (req, res) => { //req = request; res = result
     });
 });
 
-
 // POST /users, like post todos; use pick to fetch the email and password
 //  pass to the constructor function directly
 app.post('/users', (req, res) => {
@@ -201,6 +200,33 @@ app.post('/users', (req, res) => {
         .catch((e) => {
             res.status(400).send(e);
         });
+});
+
+//delete user written by DL180923
+app.delete('/users', authenticate, (req, res) => {
+    //supply the email address and password to do the removal
+
+    var body = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredentials(body.email, body.password).then((user) => {
+
+        User.findOneAndRemove({
+            _id: user._id
+        })
+            .then(
+                (user) => {
+                    if (!user) {
+                        return res.status(404).send();
+                    }
+                    res.send({user});
+                })
+            .catch((e) => {
+                res.status(400).send(e);
+            });         
+
+    }).catch((e) => {
+        res.status(400).send();
+    });
 });
 
 // authenticate was then moved to its own file in middleware/authenticate.js
