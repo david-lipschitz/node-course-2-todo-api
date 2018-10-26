@@ -1,3 +1,7 @@
+//remember to run this you need ~/mongo/bin/mongod --dbpath ~/mongo-data/ - run it in terminal
+// which creates the listener on port 27017, unless you are running this in Heroku
+//After it is running, then run npm test in VS Code's terminal
+// and if npm test doesn't work, then try npm install to get all the Node Modules to be installed
 require('./config/config');
 
 const _ = require('lodash'); // note Andrew has v4.15.0; I have 4.17.10
@@ -104,7 +108,44 @@ app.get('/todos/:id', authenticate, (req, res) => {
         });   
 });
 
-app.delete('/todos/:id', authenticate, (req, res) => {
+//promise; convert to async await xx
+// app.delete('/todos/:id', authenticate, (req, res) => {
+//     // get the id
+
+//     // validate the id -> not valid? return 404
+
+//     // remove todo by id
+//     //   success
+//     //     if no doc, send 404
+//     //       if doc, send doc back with a 200
+//     //   error
+//     //     400 with empty body
+
+//     var id = req.params.id;
+
+//     if (!ObjectID.isValid(id)) {
+//         return res.status(404).send();
+//     }
+
+//     Todo.findOneAndRemove({
+//         _id: id,
+//         _creator: req.user._id
+//     })
+//         .then(
+//             (todo) => {
+//                 if (!todo) {
+//                     return res.status(404).send();
+//                 }
+//                 res.send({todo});
+//             })
+//         .catch((e) => {
+//             res.status(400).send(e);
+//         });   
+    
+// });
+
+//async await
+app.delete('/todos/:id', authenticate, async (req, res) => {
     // get the id
 
     // validate the id -> not valid? return 404
@@ -116,27 +157,24 @@ app.delete('/todos/:id', authenticate, (req, res) => {
     //   error
     //     400 with empty body
 
-    var id = req.params.id;
+    const id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
 
-    Todo.findOneAndRemove({
-        _id: id,
-        _creator: req.user._id
-    })
-        .then(
-            (todo) => {
-                if (!todo) {
-                    return res.status(404).send();
-                }
-                res.send({todo});
-            })
-        .catch((e) => {
-            res.status(400).send(e);
-        });   
-    
+    try {
+        const todo = await Todo.findOneAndRemove({
+                _id: id,
+                _creator: req.user._id
+            });
+        if (!todo) {
+            return res.status(404).send();
+        }
+        res.send({todo});
+    } catch (e) {
+        res.status(400).send(e);
+    };      
 });
 
 app.patch('/todos/:id', authenticate, (req, res) => {
@@ -181,25 +219,40 @@ app.get('/users', (req, res) => { //req = request; res = result
 
 // POST /users, like post todos; use pick to fetch the email and password
 //  pass to the constructor function directly
-app.post('/users', (req, res) => {
-    //console.log(req.body);
-    var body = _.pick(req.body, ['email', 'password']);
-    // var user = new User({ //I did it like this, but there is an easier way
-    //     email: body.email,
-    //     password: body.password
-    // });
-    var user = new User(body); //simpler as body will include email and password
+// uses promises xx
+// app.post('/users', (req, res) => {
+//     //console.log(req.body);
+//     var body = _.pick(req.body, ['email', 'password']);
+//     // var user = new User({ //I did it like this, but there is an easier way
+//     //     email: body.email,
+//     //     password: body.password
+//     // });
+//     var user = new User(body); //simpler as body will include email and password
 
-    user.save()
-        .then(() => { //we used to have .then((user)), but as user is the same we don't need it
-            return user.generateAuthToken();
-            //res.send(doc); - this was the old line before generateAuthToken and the extra then
-        }).then((token) => { // this then is a second promise
-            res.header('x-auth', token).send(user);
-        })
-        .catch((e) => {
-            res.status(400).send(e);
-        });
+//     user.save()
+//         .then(() => { //we used to have .then((user)), but as user is the same we don't need it
+//             return user.generateAuthToken();
+//             //res.send(doc); - this was the old line before generateAuthToken and the extra then
+//         }).then((token) => { // this then is a second promise
+//             res.header('x-auth', token).send(user);
+//         })
+//         .catch((e) => {
+//             res.status(400).send(e);
+//         });
+// });
+
+//with async - await
+app.post('/users', async (req, res) => {
+    try {
+      const body = _.pick(req.body, ['email', 'password']);
+      const user = new User(body);
+
+      await user.save();
+      var token = await user.generateAuthToken();
+      res.header('x-auth', token).send(user);
+    } catch (e) {
+        res.status(400).send(e);
+    }
 });
 
 //delete user written by DL180923
@@ -274,29 +327,56 @@ app.get('/users/me', authenticate, (req, res) => {
 
 // now we need to allow a user to login, the user exists, and has valid (hashed) password
 // POST /users/login {email, password}
-app.post('/users/login', (req, res) => {
-    var body = _.pick(req.body, ['email', 'password']);
+// using promises
+// app.post('/users/login', (req, res) => {
+//     var body = _.pick(req.body, ['email', 'password']);
     
-    //res.send(body);
-    User.findByCredentials(body.email, body.password).then((user) => {
-        //res.send(user); -- during testing and before adding generateAuthToken
-        user.generateAuthToken().then((token) => {
-            res.header('x-auth', token).send(user);
-        });
-    }).catch((e) => {
+//     //res.send(body);
+//     User.findByCredentials(body.email, body.password).then((user) => {
+//         //res.send(user); -- during testing and before adding generateAuthToken
+//         user.generateAuthToken().then((token) => {
+//             res.header('x-auth', token).send(user);
+//         });
+//     }).catch((e) => {
+//         res.status(400).send();
+//     });
+// });
+
+//using async - await
+app.post('/users/login', async (req, res) => {
+    try {
+        const body = _.pick(req.body, ['email', 'password']);
+        const user = await User.findByCredentials(body.email, body.password);
+        const token = await user.generateAuthToken();
+        res.header('x-auth', token).send(user);
+    } catch (e) {
         res.status(400).send();
-    });
+    }
 });
 
-app.delete('/users/me/token', authenticate, (req, res) => {
+//original with promises, not async - await
+// app.delete('/users/me/token', authenticate, (req, res) => {
+//     //call an instance method
+//     req.user.removeToken(req.token)
+//         .then(() => {
+//             res.status(200).send();
+//         }, () => {
+//             res.status(400).send();
+//         });
+// });
+
+// adding the async, means that we are returning a promise, and not values
+app.delete('/users/me/token', authenticate, async (req, res) => {
     //call an instance method
-    req.user.removeToken(req.token)
-        .then(() => {
-            res.status(200).send();
-        }, () => {
-            res.status(400).send();
-        });
+    // in this case we don't return anything back, we just want to know that it worked
+    try {
+        await req.user.removeToken(req.token);
+        res.status(200).send();
+    } catch (e) {
+        res.status(400).send();
+    }
 });
+
 
 app.listen(port, () => {
     console.log(`Started up on port ${port}`);
